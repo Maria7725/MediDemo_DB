@@ -7,7 +7,6 @@ Date: October 2025
 */
 
 -- ==== 1. NULL OR INVALID DATES ==== 
-
 SELECT * FROM Appointments 
 WHERE appointment_date IS NULL;
 
@@ -23,16 +22,17 @@ JOIN AppointmentStatus S ON A.status_id = S.status_id AND
 LEFT JOIN Cases C ON A.appointment_id = C.appointment_id
 WHERE C.diagnosis_code IS NOT NULL;
 
-/* The result shows that the Cases table contains diagnoses for canceled and no-show appointments.
-    Next I want to count the number of such raws for reporting and then remove those records fronm the 'Cases' table.
+/* The result shows that the Cases table contains diagnoses 
+   Next, count how many such rows exist (for reporting), then remove those records from the Cases table.
 */
-
+-- Step 1. Count affected rows
 SELECT COUNT(*) AS bad_dx
 FROM Cases C
 JOIN Appointments A ON A.appointment_id = C.appointment_id
 JOIN AppointmentStatus S ON S.status_id = A.status_id
 WHERE S.status_name IN ('Canceled','No-Show');
 
+-- Step 2. Delete those rows inside a transaction
 BEGIN TRAN;
     DELETE C
     FROM Cases C
@@ -40,10 +40,11 @@ BEGIN TRAN;
     JOIN AppointmentStatus S ON S.status_id     = A.status_id
     WHERE S.status_name IN ('Canceled','No-Show');
 
-    SELECT @@ROWCOUNT AS deleted_rows;  --  audit
-COMMIT;  -- or ROLLBACK;
+-- Audit the number of deleted rows
+SELECT @@ROWCOUNT AS deleted_rows;  
+COMMIT;  -- or ROLLBACK;  -- use ROLLBACK instead of COMMIT if verification fails
 
--- Verify the resalt 
+-- Verify the result 
 SELECT A.appointment_id, S.status_name, C.diagnosis_code
 FROM Appointments A
 JOIN AppointmentStatus S ON A.status_id = S.status_id AND
@@ -52,7 +53,6 @@ LEFT JOIN Cases C ON A.appointment_id = C.appointment_id
 WHERE C.diagnosis_code IS NOT NULL;
 
 -- ==== 3. DOCTORS DOUBLE-BOOKED SAME DAY/TIME ==== 
-
  WITH DoubleBookings AS (
     SELECT 
         doctor_id, 
@@ -81,10 +81,9 @@ UPDATE Appointments
 SET appointment_time = '11:45:00'
 WHERE doctor_id = 140 AND patient_id = 1163;
 
--- To verify the result run the query that checks doctor double-booking same day/time again
+-- To verify the result, run the query that checks doctor double-booking the same day/time again
 
 -- ==== 4. PATIENTS WITH MORE THAN ONE APPOINTMENT AT THE SAME DATE/TIME ==== 4) 
-
 SELECT 
   A.patient_id,
   A.appointment_date,
@@ -96,7 +95,6 @@ HAVING COUNT(*) > 1
 ORDER BY A.patient_id, A.appointment_date, A.appointment_time;
 
 -- ==== 5. COMPLETED APPOINTMENTS WITH NO DIAGNOSIS RECORDED ==== 
-
 SELECT 
   A.appointment_id,
   A.patient_id,
@@ -111,14 +109,13 @@ WHERE S.status_name = 'Completed'
 ORDER BY A.appointment_date, A.appointment_time;
 
 -- ==== 6. APPOINTMENTS BEFORE A PATIENT WAS BORN ==== 
-
 SELECT A.appointment_id, A.patient_id, P.date_of_birth, A.appointment_date
 FROM Appointments A
 JOIN Patients P ON P.patient_id = A.patient_id
 WHERE A.appointment_date < P.date_of_birth
 ORDER BY A.appointment_date;
 
--- Found 3 appointments with invalid dates (before patient’s birth)
+-- Found 3 appointments with invalid dates (before patientâ€™s birth)
 -- Review the bad rows (dry run)
 SELECT A.appointment_id, A.patient_id, P.date_of_birth, A.appointment_date, A.appointment_time
 FROM Appointments A
@@ -182,13 +179,11 @@ WHERE A.patient_id = 1090
 ORDER BY A.appointment_date;
 
 -- ==== 7. AFTER-HOURS APPOINTMENTS (BEFORE 08:00 OR AFTER 17:00) ==== 
-
 SELECT *
 FROM Appointments
 WHERE appointment_time < '08:00' OR appointment_time > '17:00';
 
 -- ==== 8. WEEKEND APPOINTMENTS ==== 
-
 SELECT *
 FROM Appointments
 WHERE DATENAME(weekday, appointment_date) IN ('Saturday','Sunday');  
@@ -198,7 +193,7 @@ WHERE DATENAME(weekday, appointment_date) IN ('Saturday','Sunday');
    keeping the same time slot unless this causes overlaps.  
 */
 
---Checking for conflicts (dowble-booking of doctors or patients)
+-- Checking for conflicts (double-booking of doctors or patients)
 WITH to_fix AS (
     SELECT
         A.appointment_id,
@@ -257,3 +252,4 @@ COMMIT;
 SELECT *
 FROM Appointments
 WHERE DATENAME(weekday, appointment_date) IN ('Saturday','Sunday');  
+
