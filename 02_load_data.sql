@@ -1,5 +1,5 @@
-/* MediDemo_DB — Populating Tables with Data
-   Purpose: Portfolio project (SQL Server) — synthetic medical dataset
+/* MediDemo_DB â€” Populating Tables with Data
+   Purpose: Portfolio project (SQL Server) â€” synthetic medical dataset
    Contents: INSERT statements to load demo data into all tables
    Run after: database_and_tables_creation.sql
    Notes:
@@ -9,7 +9,6 @@
 
 -- Use the database that contains the Alaska_Clinics table
 USE MediDemo_DB;
-GO
 
 -- Insert 10 rows with complete and realistic data into the Alaska_Clinics table
 INSERT INTO Alaska_Clinics (clinic_name, street_address, city, zip_code, phone_number) VALUES
@@ -23,11 +22,9 @@ INSERT INTO Alaska_Clinics (clinic_name, street_address, city, zip_code, phone_n
 ('Soldotna_Clinic', '43335 K-Beach Rd', 'Soldotna', '99669', '(907) 262-5566'),
 ('Seward_Medical_Group', '417 First Ave', 'Seward', '99664', '(907) 224-7788'),
 ('Homer_Health_Services', '4123 Homer Spit Rd', 'Homer', '99603', '(907) 235-9900');
-GO
 
 -- Verify the data has been inserted correctly
 SELECT * FROM Alaska_Clinics;
-GO
 
 -- Insert data into the MedicalStaff table
 INSERT INTO MedicalStaff (first_name, last_name, specialization, phone_number, email, clinic_id) VALUES
@@ -318,7 +315,7 @@ INSERT INTO AppointmentStatus (status_name) VALUES
 ('No-Show'),
 ('Rescheduled');
 
-SELECT * FROM AppointmentStatus
+SELECT * FROM AppointmentStatus;
 
 UPDATE AppointmentStatus
 SET status_name = 'Canceled'
@@ -329,7 +326,7 @@ SET status_name = 'Checked In'
 WHERE status_name = 'Checked_In';
 
 --Insert data into the Appointments table
--- data about Pediatric patients appointments
+-- data about Pediatric patients' appointments
 INSERT INTO Appointments (patient_id, doctor_id, appointment_date, appointment_time, status_id) VALUES
 (1072,103,'2025-01-03','08:00',1),
 (1073,108,'2025-01-06','09:00',2),
@@ -929,7 +926,6 @@ SELECT * FROM Diagnoses_types;
 ('J45.909',  'Unspecified asthma, uncomplicated'),
 ('J02.0',    'Streptococcal pharyngitis'),
 ('H65.90',   'Unspecified nonsuppurative otitis media, unspecified ear')*/
-
 
 --INSERT INTO Cases (diagnostic_code, appointment_id) VALUES 
 --('J45.909', 10000),
@@ -1575,10 +1571,3 @@ INSERT INTO Cases (diagnosis_code, appointment_id) VALUES
 ('N13.30', 10491),
 ('N40.1', 10507),
 ('N39.0', 10531);
-
-
-
-
-
-
-
