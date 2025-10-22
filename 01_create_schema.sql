@@ -1,9 +1,8 @@
-/* MediDemo_DB – Database & Table Creation
-   Purpose: Portfolio project (SQL Server) – synthetic medical dataset
+/* MediDemo_DB â€“ Database & Table Creation
+   Purpose: Portfolio project (SQL Server) â€“ synthetic medical dataset
    Contents: DB creation, core tables, constraints, simple verification
    Note: All data is synthetic 
 */
-
 
 -- Step 1: Create the database
 CREATE database MediDemo_DB;
@@ -51,7 +50,6 @@ CREATE TABLE AppointmentStatus (
 );
 GO
 
-
 CREATE TABLE Appointments (
     appointment_id INT IDENTITY (10000, 1) PRIMARY KEY,
     patient_id INT NOT NULL,
@@ -64,7 +62,6 @@ CREATE TABLE Appointments (
     FOREIGN KEY (status_id) REFERENCES AppointmentStatus(status_id)
 );
 GO
-
 
 CREATE TABLE Diagnoses_types (
 	diagnosis_code VARCHAR(25) PRIMARY KEY,
@@ -81,14 +78,12 @@ CREATE TABLE Cases (
 );
 GO
 
--- -- Verify that all user tables were created successfully
-
+-- STEP 4. Verifying tables creation
 SELECT name
 FROM sys.tables
 WHERE is_ms_shipped = 0;
 
--- creating then removing Prescriptions to show FK inspection and safe drop steps
-
+-- STEP 5 (Optional). Creating, then removing 'Prescriptions' table to show FK inspection and safe drop steps
 CREATE TABLE Prescriptions (
 	prescription_id INT IDENTITY(100, 1) PRIMARY KEY,
 	appointment_id INT NOT NULL,
@@ -110,7 +105,7 @@ INNER JOIN
 WHERE
     t.name = 'Prescriptions' AND fk.referenced_object_id = OBJECT_ID('Appointments');
 
--- Removing the constrain from the table and dropping the table
+-- Removing the constraint from the table and dropping the table
 ALTER TABLE Prescriptions DROP CONSTRAINT FK__Prescript__appoi__619B8048;
 DROP TABLE Prescriptions;
 
@@ -118,4 +113,5 @@ DROP TABLE Prescriptions;
 SELECT name
 FROM sys.tables
 WHERE is_ms_shipped = 0;
+
 
