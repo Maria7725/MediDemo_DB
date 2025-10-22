@@ -93,16 +93,16 @@ Each appointment may generate one or more cases, each linked to a diagnosis type
 Run the SQL scripts in the following order (SQL Server Management Studio or Azure Data Studio):
 
 1️⃣ **Create database and tables**  
-   `01_database_and_tables_creation.sql`
+   [01_create_schema.sql](./01_create_schema.sql)
 
 2️⃣ **Populate with data**  
-   `02_tables_population.sql`
+   [02_load_data.sql](./02_load_data.sql)
 
 3️⃣ **Verify and clean**  
-   `03_data_verif_and_cleaning.sql`
+   [03_clean_validate.sql](./03_clean_validate.sql)
 
 4️⃣ **Run analysis**  
-   `04_data_analysis.sql`
+   [04_analysis_queries.sql](./04_analysis_queries.sql)
 
 ---
 
@@ -129,3 +129,4 @@ You are free to fork, use, or adapt the code with proper attribution.
 💼 [LinkedIn Profile](https://www.linkedin.com/in/maria-bass-4a422052/)  
 
 ---
+
