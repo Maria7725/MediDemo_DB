@@ -2,7 +2,7 @@
 MediDemo_DB Analysis Queries
 Author: Maria Bass
 Purpose: Portfolio project demonstrating SQL data analysis
-Scope: Appointment, patient, and diagnosis analytics for synthetic clinical dataset
+Scope: Appointment, patient, and diagnosis analytics for a synthetic clinical dataset
 Database: MediDemo_DB (SQL Server)
 Date: October 2025
 */
@@ -10,12 +10,10 @@ Date: October 2025
 -- ************ PATIENT & APPOINTMENT VOLUME ********************
 
 -- ==== 1. MONTHLY APPOINTMENT VOLUME OVERALL ==== 
-
-/* - Keeps clinics with zero completed appointments (LEFT JOINs)
-   - Counts ONLY 'Completed' rows via SUM(CASE ...)
-*/
-
-  SELECT 
+-- Keeps clinics with zero completed appointments (LEFT JOINs)
+-- Counts ONLY 'Completed' rows via SUM(CASE ...)
+  
+SELECT 
 	AC.clinic_id,
 	AC.clinic_name,
 	SUM(CASE WHEN S.status_name = 'Completed' THEN 1 ELSE 0 END) AS total_completed_appointments
@@ -26,18 +24,17 @@ Date: October 2025
   GROUP BY AC.clinic_id, AC.clinic_name
   ORDER BY AC.clinic_name
 
-  -- ==== 2. MONTHLY APPOINTMENT VOLUME BY CLINIC ==== 
-  -- Excludes 'Canceled' and 'No-Show' appointments.
-  -- Uses a specified time frame.
+-- ==== 2. MONTHLY APPOINTMENT VOLUME BY CLINIC ==== 
+-- Excludes 'Canceled' and 'No-Show' appointments
+-- Uses a specified time frame
 
-    -- Add a computed column month_start to facilitate monthly grouping.
+  -- Add a computed column month_start to facilitate monthly grouping
 ALTER TABLE Appointments
 ADD month_start AS CAST((DATEADD(month, DATEDIFF(month, 0, appointment_date), 0)) AS Date) PERSISTED;
 
-
+   -- Calculate monthly appointment volume by clinic
 DECLARE @start_date date = '2025-01-01';
 DECLARE @end_date date = '2025-12-31';
-
 SELECT
   AC.clinic_name,
   A.month_start,
@@ -61,7 +58,6 @@ ORDER BY
 -- Counts appointments per clinic by outcome: Completed, Canceled, No-Show, Pending (Checked In / Confirmed / Scheduled / Rescheduled)
 
 DECLARE @today date = CAST(GETDATE() AS date);
-
 WITH status_totals AS (
     SELECT 
         AC.clinic_name,
@@ -93,7 +89,6 @@ ORDER BY clinic_name;
 DECLARE @startDate date = (SELECT MIN(appointment_date) FROM Appointments);
 DECLARE @today date = CAST(GETDATE() AS date);
 DECLARE @prevDay date = DATEADD(day, -1, @today);
-
 SELECT
   AC.clinic_name,
   COUNT(A.appointment_id) AS total_appointments,
@@ -118,7 +113,6 @@ ORDER BY total_appointments DESC;
 
 DECLARE @today   date = CAST(GETDATE() AS date);
 DECLARE @prevDay date = DATEADD(day, -1, @today);
-
 SELECT
   AC.clinic_name,
   CAST(DATEADD(month, DATEDIFF(month, 0, A.appointment_date), 0) AS date) AS month_start,
@@ -139,7 +133,6 @@ ORDER BY
 
 DECLARE @start_date date = '2025-01-01';
 DECLARE @end_date   date = '2025-12-31';  
-
 SELECT
     AC.clinic_name,
     A.appointment_date,
@@ -166,7 +159,6 @@ ORDER BY
 
 DECLARE @start_date date = '2025-01-01';
 DECLARE @end_date   date = '2025-12-31';  
-
 WITH ranked_doctors AS (
   SELECT
       MS.staff_id,
@@ -239,7 +231,7 @@ SELECT
 FROM
     PatientAges;
 
--- ==== 3. PATIENTS SEX DISTRIBUTION ==== 
+-- ==== 3. PATIENTS' SEX DISTRIBUTION ==== 
 
 SELECT
 	SUM (CASE WHEN gender = 'Male' THEN 1 ELSE 0 END) AS male_count,
@@ -276,7 +268,6 @@ ORDER BY diagnosis_count DESC, DT.diagnosis_code
 
 DECLARE @start_date DATE = '2025-01-01';
 DECLARE @end_date   DATE = '2025-12-31';
-
 SELECT
     AC.clinic_name,
     DT.diagnosis_code,
@@ -311,7 +302,6 @@ ORDER BY
 
 DECLARE @start_date date = '2025-01-01';
 DECLARE @end_date   date = '2025-12-31';
-
 WITH dx AS (
   SELECT DISTINCT
          P.patient_id,
@@ -381,4 +371,5 @@ GROUP BY
 HAVING COUNT(DISTINCT C.diagnosis_code) > 1
 ORDER BY
     diagnoses_count DESC,
+
     patient_age DESC;
